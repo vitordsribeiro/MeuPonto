@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Registros — Registrador de Ponto</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card">
+        <div class="topo">
+            <h1>Editar registros</h1>
+            <a href="{{ url_for('dashboard') }}">Voltar</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Entrada</th>
+                    <th>Saída Almoço</th>
+                    <th>Volta Almoço</th>
+                    <th>Saída</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in registros %}
+                <tr>
+                    <td>{{ r.data }}</td>
+                    <td>{{ r.entrada or '--:--' }}</td>
+                    <td>{{ r.saida_almoco or '--:--' }}</td>
+                    <td>{{ r.volta_almoco or '--:--' }}</td>
+                    <td>{{ r.saida or '--:--' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Corrigir um horário</h2>
+        <form method="POST">
+            <label>Data (AAAA-MM-DD)</label>
+            <input type="text" name="data" placeholder="2026-08-25" required>
+
+            <label>Campo</label>
+            <select name="campo">
+                <option value="entrada">Entrada</option>
+                <option value="saida_almoco">Saída Almoço</option>
+                <option value="volta_almoco">Volta Almoço</option>
+                <option value="saida">Saída</option>
+            </select>
+
+            <label>Novo horário (HH:MM)</label>
+            <input type="text" name="novo_horario" placeholder="08:05" required>
+
+            <button type="submit">Salvar</button>
+        </form>
+    </div>
+</body>
+</html>

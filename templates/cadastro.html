@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro — Registrador de Ponto</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card">
+        <h1>Criar conta</h1>
+
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+
+        <form method="POST">
+            <label>Nome</label>
+            <input type="text" name="nome" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Senha</label>
+            <input type="password" name="senha" required minlength="6">
+
+            <label>Confirmar senha</label>
+            <input type="password" name="confirmar_senha" required minlength="6">
+
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <a href="{{ url_for('login') }}" class="link-editar">Já tenho conta — entrar</a>
+    </div>
+</body>
+</html>

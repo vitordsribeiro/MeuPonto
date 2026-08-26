@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrador de Ponto</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card">
+        <div class="topo">
+            <h1>Olá, {{ usuario.nome }}</h1>
+            <a href="{{ url_for('logout') }}">Sair</a>
+        </div>
+
+        <div class="resumo">
+            <div>
+                <span class="label">Hoje</span>
+                <span class="valor">{{ horas_hoje }}</span>
+            </div>
+            <div>
+                <span class="label">Este mês</span>
+                <span class="valor">{{ horas_mes }}</span>
+            </div>
+        </div>
+
+        <div class="botoes">
+            <form method="POST" action="{{ url_for('bater_ponto') }}">
+                <input type="hidden" name="tipo" value="entrada">
+                <button {% if registro.entrada %}disabled{% endif %}>Entrada</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('bater_ponto') }}">
+                <input type="hidden" name="tipo" value="saida_almoco">
+                <button {% if not registro.entrada or registro.saida_almoco %}disabled{% endif %}>Saída Almoço</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('bater_ponto') }}">
+                <input type="hidden" name="tipo" value="volta_almoco">
+                <button {% if not registro.saida_almoco or registro.volta_almoco %}disabled{% endif %}>Volta Almoço</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('bater_ponto') }}">
+                <input type="hidden" name="tipo" value="saida">
+                <button {% if not registro.entrada or registro.saida %}disabled{% endif %}>Saída</button>
+            </form>
+        </div>
+
+        <p class="registros-hoje">
+            Entrada: {{ registro.entrada or '--:--' }} ·
+            Saída almoço: {{ registro.saida_almoco or '--:--' }} ·
+            Volta almoço: {{ registro.volta_almoco or '--:--' }} ·
+            Saída: {{ registro.saida or '--:--' }}
+        </p>
+
+        <a href="{{ url_for('editar') }}" class="link-editar">Editar registros manualmente</a>
+    </div>
+</body>
+</html>
