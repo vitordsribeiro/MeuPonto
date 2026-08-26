@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Editar Registros — Registrador de Ponto</title>
     <link rel="stylesheet" href="/style.css">
 </head>
@@ -12,28 +13,30 @@
             <a href="{{ url_for('dashboard') }}">Voltar</a>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Entrada</th>
-                    <th>Saída Almoço</th>
-                    <th>Volta Almoço</th>
-                    <th>Saída</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in registros %}
-                <tr>
-                    <td>{{ r.data }}</td>
-                    <td>{{ r.entrada or '--:--' }}</td>
-                    <td>{{ r.saida_almoco or '--:--' }}</td>
-                    <td>{{ r.volta_almoco or '--:--' }}</td>
-                    <td>{{ r.saida or '--:--' }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Entrada</th>
+                        <th>Saída Almoço</th>
+                        <th>Volta Almoço</th>
+                        <th>Saída</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registros %}
+                    <tr>
+                        <td>{{ r.data }}</td>
+                        <td>{{ r.entrada or '--:--' }}</td>
+                        <td>{{ r.saida_almoco or '--:--' }}</td>
+                        <td>{{ r.volta_almoco or '--:--' }}</td>
+                        <td>{{ r.saida or '--:--' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <h2>Corrigir um horário</h2>
         <form method="POST">

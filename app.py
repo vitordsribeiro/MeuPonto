@@ -18,7 +18,7 @@ from auth import login_required, verify_login, get_current_user
 from services import sheets
 from services import horas
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="")
 app.secret_key = os.environ.get("SECRET_KEY", "chave-de-desenvolvimento-troque-em-producao")
 
 

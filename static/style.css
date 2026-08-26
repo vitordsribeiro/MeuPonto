@@ -1,79 +1,178 @@
+:root {
+    --cor-fundo: #f2f4f7;
+    --cor-card: #ffffff;
+    --cor-texto: #1a1d23;
+    --cor-texto-suave: #6b7280;
+    --cor-borda: #e5e7eb;
+    --cor-bloco: #f7f8fa;
+    --cor-primaria: #2563eb;
+    --cor-primaria-hover: #1d4ed8;
+    --cor-erro: #dc2626;
+    --cor-erro-fundo: #fef2f2;
+    --sombra: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.08);
+    --raio: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --cor-fundo: #0f1115;
+        --cor-card: #171a21;
+        --cor-texto: #f2f3f5;
+        --cor-texto-suave: #9aa1ac;
+        --cor-borda: #2a2e37;
+        --cor-bloco: #1f232c;
+        --cor-primaria: #3b82f6;
+        --cor-primaria-hover: #60a5fa;
+        --cor-erro: #f87171;
+        --cor-erro-fundo: #2a1516;
+        --sombra: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: -apple-system, sans-serif;
-    background: #f2f2f2;
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--cor-fundo);
+    color: var(--cor-texto);
     display: flex;
     justify-content: center;
-    padding: 40px 16px;
+    align-items: flex-start;
+    padding: clamp(16px, 5vw, 48px) 16px;
+    -webkit-font-smoothing: antialiased;
 }
 
 .card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
+    background: var(--cor-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: clamp(20px, 5vw, 32px);
     max-width: 480px;
     width: 100%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: var(--sombra);
+}
+
+h1 {
+    font-size: clamp(20px, 5vw, 24px);
+    margin: 0 0 4px;
+}
+
+h2 {
+    font-size: 16px;
+    margin: 24px 0 12px;
+}
+
+a {
+    color: var(--cor-primaria);
 }
 
 .topo {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 8px 16px;
+    margin-bottom: 8px;
+}
+
+.topo a {
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.topo a:hover {
+    text-decoration: underline;
 }
 
 .resumo {
-    display: flex;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
     margin: 20px 0;
 }
 
 .resumo > div {
-    flex: 1;
-    background: #f7f7f7;
-    border-radius: 8px;
-    padding: 12px;
+    background: var(--cor-bloco);
+    border-radius: 12px;
+    padding: 14px 8px;
     text-align: center;
 }
 
 .label {
     display: block;
     font-size: 12px;
-    color: #888;
+    color: var(--cor-texto-suave);
 }
 
 .valor {
     display: block;
-    font-size: 20px;
-    font-weight: bold;
+    font-size: clamp(18px, 5vw, 22px);
+    font-weight: 700;
+    margin-top: 2px;
 }
 
 .botoes {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
     margin-bottom: 16px;
+}
+
+.botoes form {
+    margin: 0;
 }
 
 .botoes form button {
     width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background: #2563eb;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
 }
 
-.botoes form button:disabled {
-    background: #ccc;
+button {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    border-radius: 10px;
+    background: var(--cor-primaria);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 16px;
+    min-height: 44px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+button:hover:not(:disabled) {
+    background: var(--cor-primaria-hover);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+button:disabled {
+    background: var(--cor-borda);
+    color: var(--cor-texto-suave);
     cursor: not-allowed;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--cor-primaria);
+    outline-offset: 2px;
 }
 
 .registros-hoje {
     font-size: 13px;
-    color: #666;
+    color: var(--cor-texto-suave);
     text-align: center;
+    line-height: 1.6;
 }
 
 .link-editar {
@@ -81,42 +180,81 @@ body {
     text-align: center;
     margin-top: 16px;
     font-size: 13px;
+    text-decoration: none;
+}
+
+.link-editar:hover {
+    text-decoration: underline;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
+    min-width: 480px;
     border-collapse: collapse;
-    margin-bottom: 20px;
 }
 
 th, td {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--cor-borda);
     font-size: 13px;
     text-align: center;
+    white-space: nowrap;
+}
+
+th {
+    color: var(--cor-texto-suave);
+    font-weight: 600;
+    background: var(--cor-bloco);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
 }
 
 form label {
     display: block;
-    margin-top: 10px;
+    margin-top: 12px;
     font-size: 13px;
-    color: #555;
+    font-weight: 500;
+    color: var(--cor-texto-suave);
 }
 
-form input, form select {
+form input,
+form select {
     width: 100%;
-    padding: 8px;
-    margin-top: 4px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-sizing: border-box;
+    padding: 11px 12px;
+    margin-top: 6px;
+    font-size: 15px;
+    background: var(--cor-card);
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
 }
 
-button {
-    margin-top: 16px;
+form button[type="submit"] {
+    width: 100%;
+    margin-top: 20px;
 }
 
 .erro {
-    color: #d33;
+    color: var(--cor-erro);
+    background: var(--cor-erro-fundo);
+    border-radius: 8px;
+    padding: 10px 12px;
     font-size: 13px;
+    margin-top: 12px;
+}
+
+@media (max-width: 380px) {
+    .botoes {
+        grid-template-columns: 1fr;
+    }
 }
