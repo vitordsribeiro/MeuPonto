@@ -10,7 +10,7 @@ implementadas.
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session
-from datetime import date
+from datetime import date, datetime
 import bcrypt
 import os
 
@@ -20,6 +20,17 @@ from services import horas
 
 app = Flask(__name__, static_url_path="")
 app.secret_key = os.environ.get("SECRET_KEY", "chave-de-desenvolvimento-troque-em-producao")
+
+
+@app.template_filter("data_br")
+def data_br(valor):
+    """Formata uma data 'AAAA-MM-DD' (como é guardada na planilha) para 'DD/MM/AAAA'."""
+    if not valor:
+        return valor
+    try:
+        return date.fromisoformat(valor).strftime("%d/%m/%Y")
+    except ValueError:
+        return valor
 
 
 @app.route("/")
@@ -72,11 +83,17 @@ def editar():
     usuario = get_current_user()
 
     if request.method == "POST":
+        try:
+            data_iso = datetime.strptime(request.form.get("data", ""), "%d/%m/%Y").strftime("%Y-%m-%d")
+        except ValueError:
+            registros = sheets.get_month_records(usuario["id"])
+            return render_template("editar.html", registros=registros, erro="Data inválida. Use o formato DD/MM/AAAA.")
+
         # TODO (services/sheets.py):
         # atualizar manualmente um horário específico de um dia específico
         sheets.editar_registro(
             usuario_id=usuario["id"],
-            data=request.form.get("data"),
+            data=data_iso,
             campo=request.form.get("campo"),
             novo_horario=request.form.get("novo_horario"),
         )

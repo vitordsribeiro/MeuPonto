@@ -24,13 +24,26 @@ dela (com permissão de Editor).
 import gspread
 import json
 import os
-from datetime import datetime, date
+from datetime import datetime, timedelta, timezone
 
 # Em produção (Vercel), as credenciais vêm da variável de ambiente
 # GOOGLE_CREDENTIALS_JSON (o conteúdo inteiro do credentials.json, em uma linha).
 # Em desenvolvimento local, se essa variável não existir, cai no arquivo local.
 CREDENTIALS_FILE = "credentials.json"
 SHEET_ID = os.environ.get("SHEET_ID", "1LiK2osZtp774QCERuRKrj4ZAK40M4wQ8WtvS3OBX_Fw")
+
+# O servidor (Vercel) roda em UTC. Sem isso, `datetime.now()` registra o
+# horário 3h à frente do horário de Brasília. Fuso fixo porque o Brasil
+# não usa mais horário de verão.
+FUSO_BRASIL = timezone(timedelta(hours=-3))
+
+
+def _agora():
+    return datetime.now(FUSO_BRASIL)
+
+
+def _hoje():
+    return _agora().date()
 
 
 def _get_client():
@@ -94,7 +107,7 @@ def _registro_vazio():
 
 
 def get_today_record(usuario_id):
-    hoje = date.today().isoformat()  # "2026-08-25"
+    hoje = _hoje().isoformat()  # "2026-08-25"
     ws = _get_worksheet("RegistrosPonto")
     registros = ws.get_all_records()
 
@@ -106,7 +119,7 @@ def get_today_record(usuario_id):
 
 
 def get_month_records(usuario_id, ano=None, mes=None):
-    hoje = date.today()
+    hoje = _hoje()
     ano = ano or hoje.year
     mes = mes or hoje.month
     prefixo = f"{ano:04d}-{mes:02d}"  # "2026-08"
@@ -153,8 +166,8 @@ def _proximo_id(ws):
 
 
 def registrar_ponto(usuario_id, tipo: str):
-    hoje = date.today().isoformat()
-    hora_atual = datetime.now().strftime("%H:%M")
+    hoje = _hoje().isoformat()
+    hora_atual = _agora().strftime("%H:%M")
     ws = _get_worksheet("RegistrosPonto")
 
     linha = _encontrar_linha(ws, usuario_id, hoje)

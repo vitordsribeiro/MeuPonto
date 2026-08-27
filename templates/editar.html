@@ -27,7 +27,7 @@
                 <tbody>
                     {% for r in registros %}
                     <tr>
-                        <td>{{ r.data }}</td>
+                        <td>{{ r.data|data_br }}</td>
                         <td>{{ r.entrada or '--:--' }}</td>
                         <td>{{ r.saida_almoco or '--:--' }}</td>
                         <td>{{ r.volta_almoco or '--:--' }}</td>
@@ -39,9 +39,14 @@
         </div>
 
         <h2>Corrigir um horário</h2>
+
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+
         <form method="POST">
-            <label>Data (AAAA-MM-DD)</label>
-            <input type="text" name="data" placeholder="2026-08-25" required>
+            <label>Data (DD/MM/AAAA)</label>
+            <input type="text" name="data" placeholder="25/08/2026" required>
 
             <label>Campo</label>
             <select name="campo">
