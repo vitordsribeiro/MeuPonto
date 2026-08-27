@@ -197,16 +197,16 @@ select:focus-visible {
 
 table {
     width: 100%;
-    min-width: 480px;
+    table-layout: fixed;
     border-collapse: collapse;
 }
 
 th, td {
-    padding: 10px 8px;
+    padding: 10px 4px;
     border-bottom: 1px solid var(--cor-borda);
-    font-size: 13px;
+    font-size: 12px;
     text-align: center;
-    white-space: nowrap;
+    word-break: break-word;
 }
 
 th {
