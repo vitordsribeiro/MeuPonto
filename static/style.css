@@ -258,3 +258,252 @@ form button[type="submit"] {
         grid-template-columns: 1fr;
     }
 }
+
+/* ---------- Atendimentos do plantão ---------- */
+
+:root {
+    color-scheme: light dark; /* calendário/relógio nativos seguem o tema */
+}
+
+.card-largo {
+    max-width: 760px;
+}
+
+.botao-link {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--cor-primaria);
+    color: var(--cor-primaria);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.botao-link:hover {
+    background: var(--cor-bloco);
+}
+
+.status {
+    background: var(--cor-bloco);
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    margin: 20px 0 4px;
+}
+
+.status-ativo {
+    box-shadow: inset 0 0 0 1px var(--cor-primaria);
+}
+
+form textarea {
+    width: 100%;
+    padding: 11px 12px;
+    margin-top: 6px;
+    font: inherit;
+    font-size: 15px;
+    background: var(--cor-card);
+    color: var(--cor-texto);
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    resize: vertical;
+}
+
+form textarea:disabled {
+    background: var(--cor-bloco);
+}
+
+textarea:focus-visible {
+    outline: 2px solid var(--cor-primaria);
+    outline-offset: 2px;
+}
+
+#form-fim {
+    margin-bottom: 16px;
+}
+
+.lista-atendimentos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+}
+
+.lista-atendimentos li {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--cor-borda);
+    font-size: 13px;
+}
+
+.lista-atendimentos li:last-child {
+    border-bottom: none;
+}
+
+.lista-atendimentos .horario {
+    display: block;
+    font-weight: 600;
+}
+
+.lista-atendimentos .duracao {
+    font-weight: 400;
+    color: var(--cor-texto-suave);
+}
+
+.lista-atendimentos .obs {
+    display: block;
+    margin-top: 2px;
+    color: var(--cor-texto-suave);
+    white-space: pre-wrap;
+}
+
+.filtro-mes {
+    margin: 16px 0;
+}
+
+.filtro-mes label {
+    margin-top: 0;
+}
+
+.filtro-mes input {
+    max-width: 220px;
+}
+
+.campos-duplos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px;
+}
+
+.texto-esquerda {
+    text-align: left;
+    white-space: pre-wrap;
+}
+
+.linha-ativa td {
+    background: var(--cor-bloco);
+}
+
+.acoes-edicao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.acoes-edicao form button[type="submit"] {
+    width: auto;
+    margin-top: 0;
+}
+
+.botao-perigo {
+    background: transparent;
+    color: var(--cor-erro);
+    border: 1px solid var(--cor-erro);
+}
+
+.botao-perigo:hover:not(:disabled) {
+    background: var(--cor-erro-fundo);
+}
+
+.controles-relatorio {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.controles-relatorio .filtro-mes {
+    margin: 16px 0 0;
+}
+
+.cabecalho-relatorio h2 {
+    margin-top: 16px;
+}
+
+.cabecalho-relatorio p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.relatorio td {
+    font-size: 13px;
+}
+
+.rodape-relatorio {
+    margin-top: 48px;
+}
+
+.assinatura {
+    width: 280px;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 13px;
+}
+
+.assinatura span {
+    display: block;
+    border-top: 1px solid var(--cor-texto);
+    margin-bottom: 6px;
+}
+
+.gerado-em {
+    text-align: center;
+    font-size: 11px;
+    color: var(--cor-texto-suave);
+    margin-top: 24px;
+}
+
+/* Impressão / PDF: sempre fundo branco, sem botões, tabela inteira */
+@media print {
+    :root {
+        --cor-fundo: #fff;
+        --cor-card: #fff;
+        --cor-texto: #000;
+        --cor-texto-suave: #444;
+        --cor-borda: #bbb;
+        --cor-bloco: #f2f2f2;
+        color-scheme: light;
+    }
+
+    body {
+        padding: 0;
+        min-height: 0;
+        display: block;
+    }
+
+    .card {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: none;
+    }
+
+    .nao-imprimir {
+        display: none !important;
+    }
+
+    .table-wrap {
+        overflow: visible;
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+
+    @page {
+        margin: 15mm;
+    }
+}
+
+@media (max-width: 380px) {
+    .campos-duplos {
+        grid-template-columns: 1fr;
+    }
+}

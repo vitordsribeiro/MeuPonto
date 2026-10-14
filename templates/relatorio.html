@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Relatório de Plantão {{ periodo }} — {{ usuario.nome }}</title>
+    <link rel="icon" type="image/jpeg" href="/imagem/ponto.jpg">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card card-largo relatorio">
+        <div class="topo nao-imprimir">
+            <h1>Relatório</h1>
+            <a href="{{ url_for('atendimentos') }}">Voltar</a>
+        </div>
+
+        <div class="controles-relatorio nao-imprimir">
+            <form method="GET" class="filtro-mes">
+                <label for="mes">Mês</label>
+                <input type="month" name="mes" id="mes" value="{{ mes }}" onchange="this.form.submit()">
+            </form>
+            <button type="button" onclick="window.print()">Imprimir / Salvar PDF</button>
+        </div>
+
+        <header class="cabecalho-relatorio">
+            <h2>Relatório de Atendimentos do Plantão</h2>
+            <p><strong>Nome:</strong> {{ usuario.nome }}</p>
+            <p><strong>Período:</strong> {{ periodo }}</p>
+        </header>
+
+        <div class="resumo">
+            <div>
+                <span class="label">Atendimentos</span>
+                <span class="valor">{{ atendimentos|length }}</span>
+            </div>
+            <div>
+                <span class="label">Tempo total</span>
+                <span class="valor">{{ total }}</span>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Data</th>
+                        <th style="width: 11%">Início</th>
+                        <th style="width: 15%">Fim</th>
+                        <th style="width: 13%">Duração</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in atendimentos %}
+                    <tr>
+                        <td>{{ a.data_inicio|data_br }}</td>
+                        <td>{{ a.hora_inicio }}</td>
+                        <td>
+                            {{ a.hora_fim or 'em andamento' }}
+                            {% if a.data_fim and a.data_fim != a.data_inicio %}<br><small>{{ a.data_fim|data_br }}</small>{% endif %}
+                        </td>
+                        <td>{{ duracao(a) }}</td>
+                        <td class="texto-esquerda obs">{{ a.observacao }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Nenhum atendimento neste mês.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="rodape-relatorio">
+            <div class="assinatura">
+                <span></span>
+                {{ usuario.nome }}
+            </div>
+            <p class="gerado-em">Gerado em {{ gerado_em }}</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Plantão — Registrador de Ponto</title>
+    <link rel="icon" type="image/jpeg" href="/imagem/ponto.jpg">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card">
+        <div class="topo">
+            <h1>Plantão</h1>
+            <a href="{{ url_for('dashboard') }}">Voltar</a>
+        </div>
+
+        <div class="status {% if aberto %}status-ativo{% endif %}">
+            {% if aberto %}
+                <span class="label">Atendimento em andamento desde</span>
+                <span class="valor">{{ aberto.data_inicio|data_br }} {{ aberto.hora_inicio }}</span>
+            {% else %}
+                <span class="label">Nenhum atendimento em andamento</span>
+                <span class="valor">--:--</span>
+            {% endif %}
+        </div>
+
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('finalizar_atendimento') }}" id="form-fim">
+            <label for="observacao">O que foi feito</label>
+            <textarea name="observacao" id="observacao" rows="4"
+                      placeholder="{% if aberto %}Descreva o atendimento…{% else %}Inicie um atendimento para descrever{% endif %}"
+                      {% if not aberto %}disabled{% endif %}></textarea>
+        </form>
+
+        <div class="botoes">
+            <form method="POST" action="{{ url_for('iniciar_atendimento') }}">
+                <button {% if aberto %}disabled{% endif %}>Início</button>
+            </form>
+            <button form="form-fim" id="botao-fim" disabled>Fim</button>
+        </div>
+
+        {% if ultimos %}
+            <h2>Últimos atendimentos</h2>
+            <ul class="lista-atendimentos">
+                {% for a in ultimos %}
+                <li>
+                    <span class="horario">
+                        {{ a.data_inicio|data_br }} · {{ a.hora_inicio }} – {{ a.hora_fim or 'em andamento' }}
+                        {% if a.hora_fim %}<span class="duracao">({{ duracao(a) }})</span>{% endif %}
+                    </span>
+                    {% if a.observacao|trim %}<span class="obs">{{ a.observacao|trim }}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <a href="{{ url_for('editar_atendimentos') }}" class="link-editar">Lançar / editar atendimentos</a>
+        <a href="{{ url_for('relatorio') }}" class="link-editar">Relatório do mês</a>
+    </div>
+
+    <script>
+        // "Fim" só habilita com observação preenchida. O rascunho fica salvo
+        // no navegador, para não perder o texto se a página for fechada.
+        const campo = document.getElementById("observacao");
+        const botaoFim = document.getElementById("botao-fim");
+        const chave = "rascunho-atendimento-{{ aberto.id if aberto else '' }}";
+
+        if (!campo.disabled) {
+            try { campo.value = localStorage.getItem(chave) || ""; } catch (e) {}
+        }
+
+        function atualizar() {
+            botaoFim.disabled = campo.disabled || campo.value.trim() === "";
+            try { localStorage.setItem(chave, campo.value); } catch (e) {}
+        }
+
+        campo.addEventListener("input", atualizar);
+        document.getElementById("form-fim").addEventListener("submit", () => {
+            try { localStorage.removeItem(chave); } catch (e) {}
+        });
+        atualizar();
+    </script>
+</body>
+</html>

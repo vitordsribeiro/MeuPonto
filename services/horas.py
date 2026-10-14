@@ -61,3 +61,44 @@ def calcular_horas_mes(registros: list) -> str:
         if tempo is not None:
             total += tempo
     return _formatar_timedelta(total)
+
+
+def _data_hora(data: str, hora: str):
+    """Converte "2026-10-14" + "23:40" em datetime. Aceita também "23:40:00"."""
+    if not data or not hora:
+        return None
+    for formato in ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S"):
+        try:
+            return datetime.strptime(f"{data} {hora}", formato)
+        except ValueError:
+            pass
+    return None
+
+
+def duracao_atendimento(atendimento: dict):
+    """
+    Duração de um atendimento do plantão, ou None se ainda não terminou.
+    Considera as datas, então um atendimento que passa da meia-noite
+    (23:40 → 00:30 do dia seguinte) dá 50min, e não negativo.
+    """
+    inicio = _data_hora(atendimento.get("data_inicio"), atendimento.get("hora_inicio"))
+    fim = _data_hora(atendimento.get("data_fim"), atendimento.get("hora_fim"))
+    if inicio is None or fim is None or fim < inicio:
+        return None
+    return fim - inicio
+
+
+def formatar_duracao_atendimento(atendimento: dict) -> str:
+    duracao = duracao_atendimento(atendimento)
+    if duracao is None:
+        return "--"
+    return _formatar_timedelta(duracao)
+
+
+def total_atendimentos(atendimentos: list) -> str:
+    total = timedelta()
+    for atendimento in atendimentos:
+        duracao = duracao_atendimento(atendimento)
+        if duracao is not None:
+            total += duracao
+    return _formatar_timedelta(total)

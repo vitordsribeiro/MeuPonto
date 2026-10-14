@@ -103,6 +103,120 @@ def editar():
     return render_template("editar.html", registros=registros)
 
 
+MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+
+
+def _mes_escolhido():
+    """Lê ?mes=AAAA-MM da URL. Se não vier (ou vier inválido), usa o mês atual."""
+    try:
+        escolhido = datetime.strptime(request.args.get("mes", ""), "%Y-%m")
+        return escolhido.year, escolhido.month
+    except ValueError:
+        hoje = sheets._hoje()
+        return hoje.year, hoje.month
+
+
+@app.route("/atendimentos")
+@login_required
+def atendimentos():
+    usuario = get_current_user()
+    return render_template(
+        "atendimentos.html",
+        aberto=sheets.get_atendimento_aberto(usuario["id"]),
+        ultimos=sheets.get_ultimos_atendimentos(usuario["id"]),
+        duracao=horas.formatar_duracao_atendimento,
+    )
+
+
+@app.route("/atendimentos/iniciar", methods=["POST"])
+@login_required
+def iniciar_atendimento():
+    sheets.iniciar_atendimento(get_current_user()["id"])
+    return redirect(url_for("atendimentos"))
+
+
+@app.route("/atendimentos/finalizar", methods=["POST"])
+@login_required
+def finalizar_atendimento():
+    usuario = get_current_user()
+    observacao = request.form.get("observacao", "").strip()
+
+    # O botão já fica desabilitado sem observação, mas conferimos aqui também
+    if not observacao:
+        return render_template(
+            "atendimentos.html",
+            aberto=sheets.get_atendimento_aberto(usuario["id"]),
+            ultimos=sheets.get_ultimos_atendimentos(usuario["id"]),
+            duracao=horas.formatar_duracao_atendimento,
+            erro="Preencha a observação para finalizar o atendimento.",
+        )
+
+    sheets.finalizar_atendimento(usuario["id"], observacao)
+    return redirect(url_for("atendimentos"))
+
+
+@app.route("/atendimentos/editar", methods=["GET", "POST"])
+@login_required
+def editar_atendimentos():
+    usuario = get_current_user()
+    erro = None
+    form = {}
+
+    if request.method == "POST":
+        form = request.form
+        campos = [form.get(c, "").strip() for c in ("data_inicio", "hora_inicio", "data_fim", "hora_fim", "observacao")]
+        data_inicio, hora_inicio, data_fim, hora_fim, observacao = campos
+
+        if not all(campos):
+            erro = "Preencha todos os campos."
+        elif horas.duracao_atendimento(dict(zip(
+                ("data_inicio", "hora_inicio", "data_fim", "hora_fim"), campos))) is None:
+            erro = "O fim precisa ser depois do início."
+        else:
+            sheets.salvar_atendimento(usuario["id"], form.get("id"), *campos)
+            return redirect(url_for("editar_atendimentos", mes=data_inicio[:7]))
+
+    ano, mes = _mes_escolhido()
+    editando = None
+    if request.args.get("id"):
+        editando = sheets.get_atendimento(usuario["id"], request.args["id"])
+
+    return render_template(
+        "editar_atendimentos.html",
+        atendimentos=sheets.get_atendimentos_mes(usuario["id"], ano, mes),
+        mes=f"{ano:04d}-{mes:02d}",
+        editando=editando,
+        form=form or editando or {},
+        erro=erro,
+    )
+
+
+@app.route("/atendimentos/excluir", methods=["POST"])
+@login_required
+def excluir_atendimento():
+    sheets.excluir_atendimento(get_current_user()["id"], request.form.get("id"))
+    return redirect(url_for("editar_atendimentos", mes=request.form.get("mes")))
+
+
+@app.route("/relatorio")
+@login_required
+def relatorio():
+    usuario = get_current_user()
+    ano, mes = _mes_escolhido()
+    lista = sheets.get_atendimentos_mes(usuario["id"], ano, mes)
+    return render_template(
+        "relatorio.html",
+        usuario=usuario,
+        atendimentos=lista,
+        mes=f"{ano:04d}-{mes:02d}",
+        periodo=f"{MESES[mes - 1]}/{ano}",
+        total=horas.total_atendimentos(lista),
+        duracao=horas.formatar_duracao_atendimento,
+        gerado_em=sheets._agora().strftime("%d/%m/%Y %H:%M"),
+    )
+
+
 @app.route("/cadastro", methods=["GET", "POST"])
 def cadastro():
     if request.method == "POST":

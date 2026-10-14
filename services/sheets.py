@@ -201,3 +201,123 @@ def editar_registro(usuario_id, data: str, campo: str, novo_horario: str):
     else:
         coluna = _COLUNAS[campo]
         ws.update_cell(linha, coluna, novo_horario)
+
+
+# ---------------------------------------------------------------------------
+# Atendimentos do plantão
+#
+# Aba "Atendimentos":
+# | id | usuario_id | data_inicio | hora_inicio | data_fim   | hora_fim | observacao        |
+# |----|-----------|-------------|-------------|------------|----------|-------------------|
+# | 1  | 1         | 2026-10-14  | 23:40       | 2026-10-15 | 00:30    | Reinício servidor |
+#
+# Um atendimento "em andamento" é uma linha com início e sem fim.
+# ---------------------------------------------------------------------------
+
+_COLUNAS_ATENDIMENTO = ["id", "usuario_id", "data_inicio", "hora_inicio", "data_fim", "hora_fim", "observacao"]
+
+
+def _ler_atendimentos(ws, usuario_id):
+    """
+    Retorna [(numero_da_linha, atendimento), ...] do usuário. Usa
+    get_all_values (e não get_all_records) para manter tudo como texto —
+    get_all_records converteria uma observação como "123" em número.
+    """
+    valores = ws.get_all_values()
+    resultado = []
+    for i, linha in enumerate(valores[1:], start=2):
+        linha = (linha + [""] * len(_COLUNAS_ATENDIMENTO))[:len(_COLUNAS_ATENDIMENTO)]
+        atendimento = dict(zip(_COLUNAS_ATENDIMENTO, linha))
+        if atendimento["usuario_id"] == str(usuario_id):
+            resultado.append((i, atendimento))
+    return resultado
+
+
+def _ordenar_atendimentos(atendimentos, recentes_primeiro=False):
+    return sorted(
+        atendimentos,
+        key=lambda a: (a["data_inicio"], a["hora_inicio"].zfill(5)),
+        reverse=recentes_primeiro,
+    )
+
+
+def get_atendimento_aberto(usuario_id):
+    ws = _get_worksheet("Atendimentos")
+    for _, atendimento in _ler_atendimentos(ws, usuario_id):
+        if atendimento["data_inicio"] and not atendimento["hora_fim"]:
+            return atendimento
+    return None
+
+
+def get_ultimos_atendimentos(usuario_id, quantidade=5):
+    ws = _get_worksheet("Atendimentos")
+    atendimentos = [a for _, a in _ler_atendimentos(ws, usuario_id)]
+    return _ordenar_atendimentos(atendimentos, recentes_primeiro=True)[:quantidade]
+
+
+def get_atendimentos_mes(usuario_id, ano, mes):
+    """Atendimentos que começaram no mês informado, em ordem cronológica."""
+    prefixo = f"{ano:04d}-{mes:02d}"
+    ws = _get_worksheet("Atendimentos")
+    atendimentos = [a for _, a in _ler_atendimentos(ws, usuario_id) if a["data_inicio"].startswith(prefixo)]
+    return _ordenar_atendimentos(atendimentos)
+
+
+def get_atendimento(usuario_id, atendimento_id):
+    ws = _get_worksheet("Atendimentos")
+    for _, atendimento in _ler_atendimentos(ws, usuario_id):
+        if atendimento["id"] == str(atendimento_id):
+            return atendimento
+    return None
+
+
+def iniciar_atendimento(usuario_id):
+    """Abre um atendimento com a data/hora atual. Não abre se já houver um em andamento."""
+    if get_atendimento_aberto(usuario_id):
+        return
+    agora = _agora()
+    ws = _get_worksheet("Atendimentos")
+    ws.append_row(
+        [_proximo_id(ws), usuario_id, agora.date().isoformat(), agora.strftime("%H:%M"), "", "", ""],
+        value_input_option="RAW",
+    )
+
+
+def finalizar_atendimento(usuario_id, observacao: str):
+    """Fecha o atendimento em andamento com a data/hora atual e a observação."""
+    ws = _get_worksheet("Atendimentos")
+    for linha, atendimento in _ler_atendimentos(ws, usuario_id):
+        if atendimento["data_inicio"] and not atendimento["hora_fim"]:
+            agora = _agora()
+            ws.update(
+                range_name=f"E{linha}:G{linha}",
+                values=[[agora.date().isoformat(), agora.strftime("%H:%M"), observacao]],
+                value_input_option="RAW",
+            )
+            return
+
+
+def salvar_atendimento(usuario_id, atendimento_id, data_inicio, hora_inicio, data_fim, hora_fim, observacao):
+    """
+    Lançamento manual: se atendimento_id vier vazio cria um novo,
+    senão atualiza o existente (desde que seja do próprio usuário).
+    """
+    ws = _get_worksheet("Atendimentos")
+    dados = [data_inicio, hora_inicio, data_fim, hora_fim, observacao]
+
+    if not atendimento_id:
+        ws.append_row([_proximo_id(ws), usuario_id] + dados, value_input_option="RAW")
+        return
+
+    for linha, atendimento in _ler_atendimentos(ws, usuario_id):
+        if atendimento["id"] == str(atendimento_id):
+            ws.update(range_name=f"C{linha}:G{linha}", values=[dados], value_input_option="RAW")
+            return
+
+
+def excluir_atendimento(usuario_id, atendimento_id):
+    ws = _get_worksheet("Atendimentos")
+    for linha, atendimento in _ler_atendimentos(ws, usuario_id):
+        if atendimento["id"] == str(atendimento_id):
+            ws.delete_rows(linha)
+            return

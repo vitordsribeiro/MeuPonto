@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Editar Atendimentos — Registrador de Ponto</title>
+    <link rel="icon" type="image/jpeg" href="/imagem/ponto.jpg">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="card card-largo">
+        <div class="topo">
+            <h1>Editar atendimentos</h1>
+            <a href="{{ url_for('atendimentos') }}">Voltar</a>
+        </div>
+
+        <form method="GET" class="filtro-mes">
+            <label for="mes">Mês</label>
+            <input type="month" name="mes" id="mes" value="{{ mes }}" onchange="this.form.submit()">
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 18%">Data</th>
+                        <th style="width: 14%">Início</th>
+                        <th style="width: 14%">Fim</th>
+                        <th>Observação</th>
+                        <th style="width: 14%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in atendimentos %}
+                    <tr {% if editando and editando.id == a.id %}class="linha-ativa"{% endif %}>
+                        <td>{{ a.data_inicio|data_br }}</td>
+                        <td>{{ a.hora_inicio }}</td>
+                        <td>
+                            {{ a.hora_fim or '--:--' }}
+                            {% if a.data_fim and a.data_fim != a.data_inicio %}<br><small>{{ a.data_fim|data_br }}</small>{% endif %}
+                        </td>
+                        <td class="texto-esquerda">{{ a.observacao }}</td>
+                        <td><a href="{{ url_for('editar_atendimentos', mes=mes, id=a.id) }}">Editar</a></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5">Nenhum atendimento neste mês.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>{% if form.get('id') %}Editando atendimento{% else %}Lançar atendimento{% endif %}</h2>
+
+        {% if erro %}
+            <p class="erro">{{ erro }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('editar_atendimentos', mes=mes) }}">
+            <input type="hidden" name="id" value="{{ form.get('id', '') }}">
+
+            <div class="campos-duplos">
+                <div>
+                    <label for="data_inicio">Data início</label>
+                    <input type="date" name="data_inicio" id="data_inicio" value="{{ form.get('data_inicio', '') }}" required>
+                </div>
+                <div>
+                    <label for="hora_inicio">Hora início</label>
+                    <input type="time" name="hora_inicio" id="hora_inicio" value="{{ form.get('hora_inicio', '') }}" required>
+                </div>
+                <div>
+                    <label for="data_fim">Data fim</label>
+                    <input type="date" name="data_fim" id="data_fim" value="{{ form.get('data_fim', '') }}" required>
+                </div>
+                <div>
+                    <label for="hora_fim">Hora fim</label>
+                    <input type="time" name="hora_fim" id="hora_fim" value="{{ form.get('hora_fim', '') }}" required>
+                </div>
+            </div>
+
+            <label for="observacao">Observação</label>
+            <textarea name="observacao" id="observacao" rows="4" required>{{ form.get('observacao', '') }}</textarea>
+
+            <button type="submit">Salvar</button>
+        </form>
+
+        {% if form.get('id') %}
+            <div class="acoes-edicao">
+                <a href="{{ url_for('editar_atendimentos', mes=mes) }}">Cancelar edição</a>
+                <form method="POST" action="{{ url_for('excluir_atendimento') }}"
+                      onsubmit="return confirm('Excluir este atendimento? Isso não pode ser desfeito.')">
+                    <input type="hidden" name="id" value="{{ form.get('id') }}">
+                    <input type="hidden" name="mes" value="{{ mes }}">
+                    <button type="submit" class="botao-perigo">Excluir</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Ao lançar um atendimento novo, a data fim acompanha a data início
+        // (o caso mais comum); dá para trocar depois se passou da meia-noite.
+        const dataInicio = document.getElementById("data_inicio");
+        const dataFim = document.getElementById("data_fim");
+        dataInicio.addEventListener("change", () => {
+            if (!dataFim.value) dataFim.value = dataInicio.value;
+        });
+    </script>
+</body>
+</html>

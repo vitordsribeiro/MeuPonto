@@ -54,6 +54,8 @@
             Saída: {{ registro.saida or '--:--' }}
         </p>
 
+        <a href="{{ url_for('atendimentos') }}" class="botao-link">Atendimentos do plantão</a>
+
         <a href="{{ url_for('editar') }}" class="link-editar">Editar registros manualmente</a>
     </div>
 </body>
