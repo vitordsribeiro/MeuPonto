@@ -409,26 +409,114 @@ textarea:focus-visible {
     background: var(--cor-erro-fundo);
 }
 
+/* ---------- Relatório (identidade Calper) ---------- */
+
+.pagina-relatorio {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+}
+
+.barra-relatorio {
+    width: 100%;
+    max-width: 760px;
+}
+
 .controles-relatorio {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-end;
     gap: 12px;
-    margin-bottom: 8px;
 }
 
 .controles-relatorio .filtro-mes {
-    margin: 16px 0 0;
+    margin: 8px 0 0;
 }
 
-.cabecalho-relatorio h2 {
-    margin-top: 16px;
+/* A folha do relatório é sempre clara, com o vermelho da logo da Calper */
+.relatorio {
+    --cor-card: #ffffff;
+    --cor-texto: #1a1a1a;
+    --cor-texto-suave: #5f6368;
+    --cor-borda: #e2e2e2;
+    --cor-bloco: #faf5f5;
+    --cor-marca: #931419;
+    --cor-marca-suave: #f6e7e8;
+    color-scheme: light;
+    background: var(--cor-card);
+    color: var(--cor-texto);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
-.cabecalho-relatorio p {
-    margin: 4px 0;
+.cabecalho-relatorio {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px 24px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid var(--cor-marca);
+}
+
+.logo-empresa {
+    height: 56px;
+    width: auto;
+}
+
+.titulo-relatorio {
+    text-align: right;
+}
+
+.titulo-relatorio h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--cor-marca);
+}
+
+.titulo-relatorio span {
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+}
+
+.dados-relatorio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 20px 0 0;
+}
+
+.dados-relatorio dt {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--cor-texto-suave);
+}
+
+.dados-relatorio dd {
+    margin: 2px 0 0;
     font-size: 14px;
+    font-weight: 600;
+}
+
+.relatorio .resumo > div {
+    background: var(--cor-marca-suave);
+    border-left: 4px solid var(--cor-marca);
+}
+
+.relatorio .resumo .valor {
+    color: var(--cor-marca);
+}
+
+.relatorio th {
+    background: var(--cor-marca);
+    color: #ffffff;
+}
+
+.relatorio tbody tr:nth-child(even) td {
+    background: var(--cor-bloco);
 }
 
 .relatorio td {
@@ -436,7 +524,7 @@ textarea:focus-visible {
 }
 
 .rodape-relatorio {
-    margin-top: 48px;
+    margin-top: 56px;
 }
 
 .assinatura {
@@ -457,7 +545,19 @@ textarea:focus-visible {
     text-align: center;
     font-size: 11px;
     color: var(--cor-texto-suave);
-    margin-top: 24px;
+    margin: 32px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--cor-marca-suave);
+}
+
+@media (max-width: 560px) {
+    .titulo-relatorio {
+        text-align: left;
+    }
+
+    .dados-relatorio {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Impressão / PDF: sempre fundo branco, sem botões, tabela inteira */

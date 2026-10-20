@@ -7,26 +7,37 @@
     <link rel="icon" type="image/jpeg" href="/imagem/ponto.jpg">
     <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-    <div class="card card-largo relatorio">
-        <div class="topo nao-imprimir">
+<body class="pagina-relatorio">
+    <div class="barra-relatorio nao-imprimir">
+        <div class="topo">
             <h1>Relatório</h1>
             <a href="{{ url_for('atendimentos') }}">Voltar</a>
         </div>
 
-        <div class="controles-relatorio nao-imprimir">
+        <div class="controles-relatorio">
             <form method="GET" class="filtro-mes">
                 <label for="mes">Mês</label>
                 <input type="month" name="mes" id="mes" value="{{ mes }}" onchange="this.form.submit()">
             </form>
             <button type="button" onclick="window.print()">Imprimir / Salvar PDF</button>
         </div>
+    </div>
 
+    {# A "folha" do relatório é sempre clara, na tela e no papel, como o PDF final #}
+    <div class="card card-largo relatorio">
         <header class="cabecalho-relatorio">
-            <h2>Relatório de Atendimentos do Plantão</h2>
-            <p><strong>Nome:</strong> {{ usuario.nome }}</p>
-            <p><strong>Período:</strong> {{ periodo }}</p>
+            <img src="/imagem/calper.png" alt="Calper — gestão compartilhada" class="logo-empresa">
+            <div class="titulo-relatorio">
+                <h2>Relatório de Atendimentos do Plantão</h2>
+                <span>{{ periodo }}</span>
+            </div>
         </header>
+
+        <dl class="dados-relatorio">
+            <div><dt>Empresa</dt><dd>Calper Gestão Compartilhada</dd></div>
+            <div><dt>Colaborador</dt><dd>{{ usuario.nome }}</dd></div>
+            <div><dt>Período</dt><dd>{{ periodo }}</dd></div>
+        </dl>
 
         <div class="resumo">
             <div>
@@ -74,7 +85,7 @@
                 <span></span>
                 {{ usuario.nome }}
             </div>
-            <p class="gerado-em">Gerado em {{ gerado_em }}</p>
+            <p class="gerado-em">Calper Gestão Compartilhada · Gerado em {{ gerado_em }}</p>
         </footer>
     </div>
 </body>
